@@ -19,15 +19,28 @@ def PowerFlowNewton(Ybus,Sbus,V0,pv_index,pq_index,max_iter,err_tol):
 
 
 # 2. the calculate_F() function
+# Calculates the mismatch between specified values of Psp and Qsp, and the calculated values of P and Q
 def calculate_F(Ybus,Sbus,V,pv_index,pq_index):
+    Delta_S = Sbus - V * (Ybus.dot(V)).conj() 
 
+    Delta_P = Delta_S.real
+    Delta_Q = Delta_S.imag
+    
+    F= np.concatenate((Delta_P[pv_index],Delta_P[pq_index],Delta_Q[pq_index]),axis=0)
+    
     return F
 
 
 # 3. the CheckTolerance() function
+# Checks whether the greatest mismatch in the mismatch vector is smaller than the specified tolerance (return 1 if that's the case, 0 otherwise). 
+# Displays as well the absolute value of the greatest mismatch as well as the iteration number.
 def CheckTolerance(F,n,err_tol):
-
+    normF = np.linalg.norm(F, np.inf) # returns the infinite norm of the vector F: max(abs(F))
+    
+    success = (normF <= err_tol ) # returns 1 if normF <= specified tolerance ; 0 otherwise
+    
     return success
+
 
 # 4. the generate_Derivatives() function
 def generate_Derivatives(Ybus,V):
