@@ -12,8 +12,32 @@ from tabulate import tabulate
 
 # 1. the PowerFlowNewton() function
 def PowerFlowNewton(Ybus,Sbus,V0,pv_index,pq_index,max_iter,err_tol):
-    ''' String here with purpose '''
-    # implement your code here
+    success = 0 #Initialization of status flag and iteration counter
+    n = 0
+    V = V0
+    print(' iteration maximum P & Q mismatch (pu)')
+    print(' --------- ---------------------------')
+    # Determine mismatch between initial guess and and specified value for P and Q
+    F = calculate_F( Ybus , Sbus , V , pv_index , pq_index)
+    # Check if the desired tolerance is reached
+    success = CheckTolerance ( F , n , err_tol)
+    # Start the Newton iteration loop
+    while (not success) and (n < max_iter) :
+        n += 1 # Update counter
+        # Compute derivatives and generate the Jacobian matrix
+        J_dS_dVm , J_dS_dTheta = generate_Derivatives ( Ybus , V)
+        J = generate_Jacobian ( J_dS_dVm , J_dS_dTheta , pv_index , pq_index)
+        # Compute the update step
+        dx = np . linalg . solve(J , F)
+        # Update voltages and check if tolerance is now reached
+        V = Update_Voltages ( dx , V , pv_index , pq_index)
+        F = calculate_F( Ybus , Sbus , V , pv_index , pq_index)
+        success = CheckTolerance ( F , n , err_tol)
+    
+    if success : #print out message concerning wether the power flow converged or not
+        print('The Newton Rapson Power Flow Converged in %d iterations!' % (n , ) )
+    else :
+        print('No Convergence !!!\n Stopped after %d iterations without solution...' % (n , ) )
 
     return V,success,n
 
@@ -100,7 +124,11 @@ def Update_Voltages(dx,V,pv_index,pq_index):
 
 # Function that displays the results of the Power Flow, 
 # Inputs are the Voltage and the data loaded from the 
-def DisplayResults(V,Ybus,Y_from,Y_to,br_f,br_t,buscode, bus_label):
+def DisplayResults(V,lnd):
+    
+    Ybus=lnd . Ybus ; Y_from=lnd . Y_fr ; Y_to=lnd . Y_to ; br_f=lnd . br_f ; br_t=lnd . br_t ;
+    buscode=lnd . buscode; SLD=lnd . S_LD ; ind_to_bus=lnd . ind_to_bus;
+    bus_to_ind=lnd . bus_to_ind ; MVA_base=lnd . MVA_base ; bus_labels=lnd . bus_labels
 
     # Busses
     N = len(V) # Number of busses
