@@ -90,6 +90,7 @@ def generate_Jacobian(J_dS_dVm,J_dS_dTheta,pv_index,pq_index):
 
 # 6. the Update_Voltages() function
 def Update_Voltages(dx,V,pv_index,pq_index):
+    # Set the indices of pv and pq busses 
     N1 = 0
     N2 = len(pv_index) 
     N3 = N2
@@ -116,59 +117,53 @@ def Update_Voltages(dx,V,pv_index,pq_index):
 #  Displaying the results in the terminal window   #
 ####################################################
 
-''' I'm not 100% sure if the calculations are correct. 
- But when we have extracted the data, we can compare the results.
-
- And the assignment doesn't say that bus_label is an input. 
- I wouldn't know how to get the information otherwise, though. So I added it.'''
 
 # Function that displays the results of the Power Flow, 
 # Inputs are the Voltage and the data loaded from the 
 def DisplayResults(V,lnd):
     
-    Ybus=lnd . Ybus ; Y_from=lnd . Y_fr ; Y_to=lnd . Y_to ; br_f=lnd . br_f ; br_t=lnd . br_t ;
-    buscode=lnd . buscode; SLD=lnd . S_LD ; ind_to_bus=lnd . ind_to_bus;
-    bus_to_ind=lnd . bus_to_ind ; MVA_base=lnd . MVA_base ; bus_labels=lnd . bus_labels
+    Ybus=lnd.Ybus ; Y_from=lnd.Y_fr ; Y_to=lnd.Y_to ; br_f=lnd.br_f ; br_t=lnd.br_t; 
+    buscode=lnd.buscode; bus_label=lnd.bus_labels; S_LD=lnd.S_LD ; 
+    ind_to_bus=lnd.ind_to_bus; bus_to_ind=lnd.bus_to_ind ; MVA_base=lnd.MVA_base 
 
     # Busses
     N = len(V) # Number of busses
-    bus_no = np.arange(1,(N+1)).astype(str) # Bus numbers
+    bus_no = np.arange(1,(N+1))
+    bus_no_str = bus_no.astype(str)
     ref = np.where(buscode == 3)[0]     # Reference bus  
-    bus_no[ref[0]] = "*"+str(ref[0]+1)+"*"   # Highliting the reference bus
-
+    bus_no_str[ref[0]] = "*"+str(ref[0]+1)+"*"   # Highliting the reference bus
     Vm = np.absolute(V) # Voltage magnitude
     Theta = np.angle(V) #Voltage angle
 
-    S_inj = V*(Ybus.dot(V)).conj() # Generation and load power
+    S_inj_g = V*(Ybus.dot(V)).conj()/MVA_base # Generation apparent power in pu
+    S_inj_ld = S_LD / MVA_base  # Load apparent power in pu
 
-    P_inj_g = np.array([]) #Generation active Power
-    P_inj_l = np.array([]) #Load active Power
-    Q_inj_g = np.array([]) #Generation reactive Power
-    Q_inj_l = np.array([]) #Load reactive Power
+    P_inj_g = np.array([str(np.real(S_inj_g))]) #Generation active Power in pu
+    P_inj_l = np.array([str(np.real(S_inj_ld))]) #Load active Power in pu
+    Q_inj_g = np.array([str(np.imag(S_inj_g))]) #Generation reactive Power in pu
+    Q_inj_l = np.array([str(np.imag(S_inj_ld))]) #Load reactive Power in pu
 
-    for s in S_inj:
-        if np.real(s)>=0: 
-            P_inj_g = np.concatenate((P_inj_g, [str(np.real(s))]))
-            P_inj_l = np.concatenate((P_inj_l, ["-"]))
-            Q_inj_g = np.concatenate((Q_inj_g, [str(np.imag(s))]))
-            Q_inj_l = np.concatenate((Q_inj_l, ["-"]))
-        else:
-            P_inj_l = np.concatenate((P_inj_l, [str(-np.real(s))]))
-            P_inj_g = np.concatenate((P_inj_g, ["-"]))
-            Q_inj_l = np.concatenate((Q_inj_l, [str(-np.imag(s))]))
-            Q_inj_g = np.concatenate((Q_inj_g, ["-"]))
-
-
+    for i in range(bus_no):
+        bus_ind = bus_to_ind[bus_no]
+        bus_data = np.vstack((bus_no_str[i], bus_label[bus_ind], Vm[bus_ind], Theta[bus_ind],
+                              P_inj_g[bus_ind], Q_inj_g[bus_ind], P_inj_l[bus_ind], Q_inj_l[bus_ind]))
+    
+    bus_data = bus_data.transpose()
     # Branches
+
+    # Link Buses with Branches (From and To)
+
+
+    to_bus = ind_to_bus[br_t] 
+    f_bus = ind_to_bus[br_f]     
+
     n_br = len(br_f) # Number of Branches
     branch_no = np.arange(1,(n_br+1)) # Branch numbers
 
-    S_to = V[br_t]*Y_to.dot(V).conj() # Apparent Power flowing into the receiving end busses
-    S_from = V[br_f]*Y_from.dot(V).conj() # Apparent Power flowing from the receiving end busses
+    S_to = V[br_t]*(Y_to.dot(V)).conj()/MVA_base # Apparent Power flowing into the receiving end busses
+    S_from = V[br_f]*(Y_from.dot(V)).conj()/MVA_base # Apparent Power flowing from the receiving end busses
 
 
-    bus_data = np.vstack((bus_no, bus_label, Vm, Theta,P_inj_g, Q_inj_g, P_inj_l, Q_inj_l))
-    bus_data = bus_data.transpose()
 
 
     branch_data = np.vstack((branch_no.astype(str), br_f, br_t, np.real(S_from), np.imag(S_from), np.real(S_to), np.imag(S_to)))
