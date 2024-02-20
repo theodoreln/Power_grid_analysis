@@ -68,8 +68,7 @@ def CheckTolerance(F,n,err_tol):
 
 # 4. the generate_Derivatives() function
 def generate_Derivatives(Ybus,V):
-    J_ds_dVm = np.diag(V/np.absolute(V)).dot(np.diag((Ybus.dot(V)).conj())) 
-    + np.diag(V).dot(Ybus.dot(np.diag(V/np.absolute(V))).conj())
+    J_ds_dVm = np.diag(V/np.absolute(V)).dot(np.diag((Ybus.dot(V)).conj())) + np.diag(V).dot(Ybus.dot(np.diag(V/np.absolute(V))).conj())
                 
     J_dS_dTheta = 1j*np.diag(V).dot((np.diag(Ybus.dot(V))-Ybus.dot(np.diag(V))).conj())
 
@@ -90,7 +89,6 @@ def generate_Jacobian(J_dS_dVm,J_dS_dTheta,pv_index,pq_index):
 
 # 6. the Update_Voltages() function
 def Update_Voltages(dx,V,pv_index,pq_index):
-    # Set the indices of pv and pq busses 
     N1 = 0
     N2 = len(pv_index) 
     N3 = N2
@@ -117,56 +115,68 @@ def Update_Voltages(dx,V,pv_index,pq_index):
 #  Displaying the results in the terminal window   #
 ####################################################
 
+''' I'm not 100% sure if the calculations are correct. 
+ But when we have extracted the data, we can compare the results.
+
+ And the assignment doesn't say that bus_label is an input. 
+ I wouldn't know how to get the information otherwise, though. So I added it.'''
 
 # Function that displays the results of the Power Flow, 
 # Inputs are the Voltage and the data loaded from the 
 def DisplayResults(V,lnd):
     
-    Ybus=lnd.Ybus ; Y_from=lnd.Y_fr ; Y_to=lnd.Y_to ; br_f=lnd.br_f ; br_t=lnd.br_t; 
-    buscode=lnd.buscode; bus_label=lnd.bus_labels; S_LD=lnd.S_LD ; 
-    ind_to_bus=lnd.ind_to_bus; bus_to_ind=lnd.bus_to_ind ; MVA_base=lnd.MVA_base 
+    Ybus=lnd.Ybus ; Y_from=lnd.Y_fr ; Y_to=lnd.Y_to ; br_f=lnd.br_f ; br_t=lnd.br_t ;
+    buscode=lnd.buscode; SLD=lnd.S_LD ; ind_to_bus=lnd.ind_to_bus;
+    bus_to_ind=lnd.bus_to_ind ; MVA_base=lnd.MVA_base ; bus_labels=lnd.bus_labels ;
+    ref=lnd.ref
 
     # Busses
     N = len(V) # Number of busses
-    bus_no = np.arange(1,(N+1))
-    bus_no_str = bus_no.astype(str)
-    ref = np.where(buscode == 3)[0]     # Reference bus  
-    bus_no_str[ref[0]] = "*"+str(ref[0]+1)+"*"   # Highliting the reference bus
-    Vm = np.absolute(V) # Voltage magnitude
-    Theta = np.angle(V) #Voltage angle
+    bus_no = [ind_to_bus[i] for i in range(N)] # Bus numbers
+    bus_no[ref[0]] = "*"+str(bus_no[ref[0]])+"*"   # Highliting the reference bus
 
-    S_inj_g = V*(Ybus.dot(V)).conj()/MVA_base # Generation apparent power in pu
-    S_inj_ld = S_LD / MVA_base  # Load apparent power in pu
+    Vm = np.round(np.absolute(V),3) # Voltage magnitude
+    Theta = np.round(np.angle(V)*180/np.pi,2) #Voltage angle
 
-    P_inj_g = np.array([str(np.real(S_inj_g))]) #Generation active Power in pu
-    P_inj_l = np.array([str(np.real(S_inj_ld))]) #Load active Power in pu
-    Q_inj_g = np.array([str(np.imag(S_inj_g))]) #Generation reactive Power in pu
-    Q_inj_l = np.array([str(np.imag(S_inj_ld))]) #Load reactive Power in pu
+    S_inj = V*(Ybus.dot(V)).conj() # Generation and load power
+    Sm = np.round(np.absolute(S_inj),2)
 
-    for i in range(bus_no):
-        bus_ind = bus_to_ind[bus_no]
-        bus_data = np.vstack((bus_no_str[i], bus_label[bus_ind], Vm[bus_ind], Theta[bus_ind],
-                              P_inj_g[bus_ind], Q_inj_g[bus_ind], P_inj_l[bus_ind], Q_inj_l[bus_ind]))
-    
-    bus_data = bus_data.transpose()
+    P_inj_g = np.array([]) #Generation active Power
+    P_inj_l = np.array([]) #Load active Power
+    Q_inj_g = np.array([]) #Generation reactive Power
+    Q_inj_l = np.array([]) #Load reactive Power
+
+    for s in S_inj:
+        if np.real(s)>=0: 
+            P_inj_g = np.concatenate((P_inj_g, [str(np.round(np.real(s),3))]))
+            P_inj_l = np.concatenate((P_inj_l, ["-"]))
+            Q_inj_g = np.concatenate((Q_inj_g, [str(np.round(np.imag(s),3))]))
+            Q_inj_l = np.concatenate((Q_inj_l, ["-"]))
+        else:
+            P_inj_l = np.concatenate((P_inj_l, [str(np.round(-np.real(s),3))]))
+            P_inj_g = np.concatenate((P_inj_g, ["-"]))
+            Q_inj_l = np.concatenate((Q_inj_l, [str(np.round(-np.imag(s),3))]))
+            Q_inj_g = np.concatenate((Q_inj_g, ["-"]))
+
+
     # Branches
-
-    # Link Buses with Branches (From and To)
-
-
-    to_bus = ind_to_bus[br_t] 
-    f_bus = ind_to_bus[br_f]     
-
     n_br = len(br_f) # Number of Branches
     branch_no = np.arange(1,(n_br+1)) # Branch numbers
 
-    S_to = V[br_t]*(Y_to.dot(V)).conj()/MVA_base # Apparent Power flowing into the receiving end busses
-    S_from = V[br_f]*(Y_from.dot(V)).conj()/MVA_base # Apparent Power flowing from the receiving end busses
+    S_to = V[br_t]*Y_to.dot(V).conj() # Apparent Power flowing into the receiving end busses
+    S_from = V[br_f]*Y_from.dot(V).conj() # Apparent Power flowing from the receiving end busses
+    
+    # Having number of branches and not there index
+    mapping_function = np.vectorize(lambda x: ind_to_bus[x])
+    br_from = mapping_function(br_f)
+    br_to = mapping_function(br_t)
 
 
+    bus_data = np.vstack((bus_no, bus_labels, Vm, Theta, Sm, P_inj_g, Q_inj_g, P_inj_l, Q_inj_l))
+    bus_data = bus_data.transpose()
 
 
-    branch_data = np.vstack((branch_no.astype(str), br_f, br_t, np.real(S_from), np.imag(S_from), np.real(S_to), np.imag(S_to)))
+    branch_data = np.vstack((branch_no.astype(str), br_from, br_to, np.real(S_from), np.imag(S_from), np.real(S_to), np.imag(S_to)))
     branch_data = branch_data.transpose()
 
 
@@ -174,16 +184,17 @@ def DisplayResults(V,lnd):
     print("=======================================================================")
     print("                           | Bus results |                             ")
     print("=======================================================================")
-    print("Bus    Bus            Voltage           Generation         Load   ")
+    print("Bus    Bus            Voltage          Power     Generation          Load   ")
 
-    print(tabulate(bus_data, headers=["#", "Label", "Mag(pu)", "Ang(pu)", "P(pu)","Q(pu)", "P(pu)","Q(pu)"],stralign="center"))
+    print(tabulate(bus_data, headers=["#", "Label", "Mag(pu)", "Ang(deg)", "S(pu)","P(pu)","Q(pu)","P(pu)","Q(pu)"],stralign="center"))
     print("\n")
     # Display Branch flow
     print("=======================================================")
     print("                   | Branch flow |                     ")
     print("=======================================================")
-    print("Branch  From    To    From Bus Inject.   To Bus Inject.  ")
+    print("Branch  From    To      From Bus Inject.       To Bus Inject.  ")
     print(tabulate(branch_data, headers=[" # ", "Bus", "Bus", "P(pu)", "Q(pu)", "P(pu)", "Q(pu)"],stralign="center"))
+
 
 
 

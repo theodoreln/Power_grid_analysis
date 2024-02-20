@@ -3,6 +3,7 @@ import cmath
 import math
 import ReadNetworkData as rd
 
+# bus_data , load_data , gen_data , line_data , tran_data , mva_base , bus_to_ind , ind_to_bus = rd.read_network_data_from_file('TestSystem.txt')
 
 def LoadNetworkData(filename):
     # Create global variables
@@ -30,14 +31,14 @@ def LoadNetworkData(filename):
     Ybus = np.zeros((N,N),dtype=complex)
     Y_fr = np.zeros((M_branches,N), dtype=complex)
     Y_to = np.zeros((M_branches,N), dtype=complex)
-    br_f = np.zeros(M_branches)
-    br_t = np.zeros(M_branches)
+    br_f = np.zeros(M_branches, dtype=int)
+    br_t = np.zeros(M_branches, dtype=int)
     for i in range(M_lines):
         # Taking the data
         id_from, id_to, R, X, B = bus_to_ind[line_data[i][0]], bus_to_ind[line_data[i][1]], line_data[i][3], line_data[i][4], line_data[i][5]
         Z = R + 1j*X
         Y = 1/Z
-        b = 1j*B
+        b = 1j*B/2
         # Filling the Ybus matrix
         Ybus[id_from,id_from] += Y+b
         Ybus[id_to, id_to] += Y+b
@@ -89,3 +90,5 @@ def LoadNetworkData(filename):
     V0 = np.ones(N, dtype=complex)
 
     return
+
+# LoadNetworkData('TestSystem.txt')

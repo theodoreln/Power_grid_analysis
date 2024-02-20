@@ -12,7 +12,8 @@ max_iter = 30 #Iteration settings
 err_tol = 10**(-4)
 
 # Load the Network data...
-filename = "IEEE_14bus.txt"
+# filename = 'TestSystem.txt'
+filename = 'Kundur_two_area_system.txt'
 lnd.LoadNetworkData(filename) # makes Ybus available as lnd.Ybus and etc.
 
 # Carry out the power flow analysis...
@@ -20,4 +21,5 @@ V,success,n = pf.PowerFlowNewton(lnd.Ybus,lnd.Sbus,lnd.V0,lnd.pv_index,lnd.pq_in
 
 # Display results if the power flow analysis converged
 if success:
+    print('Success')
     pf.DisplayResults(V,lnd) #Now we are just passing the lnd module as input
