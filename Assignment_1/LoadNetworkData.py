@@ -3,7 +3,7 @@ import cmath
 import math
 import ReadNetworkData as rd
 
-# bus_data , load_data , gen_data , line_data , tran_data , mva_base , bus_to_ind , ind_to_bus = rd.read_network_data_from_file('TestSystem.txt')
+bus_data , load_data , gen_data , line_data , tran_data , mva_base , bus_to_ind , ind_to_bus = rd.read_network_data_from_file('Kundur_two_area_system.txt')
 
 def LoadNetworkData(filename):
     # Create global variables

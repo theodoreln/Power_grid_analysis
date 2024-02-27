@@ -122,7 +122,6 @@ def Update_Voltages(dx,V,pv_index,pq_index):
  I wouldn't know how to get the information otherwise, though. So I added it.'''
 
 # Function that displays the results of the Power Flow, 
-# Inputs are the Voltage and the data loaded from the 
 def DisplayResults(V,lnd):
     
     Ybus=lnd.Ybus ; Y_from=lnd.Y_fr ; Y_to=lnd.Y_to ; br_f=lnd.br_f ; br_t=lnd.br_t ;
@@ -176,14 +175,14 @@ def DisplayResults(V,lnd):
     bus_data = bus_data.transpose()
 
 
-    branch_data = np.vstack((branch_no.astype(str), br_from, br_to, np.real(S_from), np.imag(S_from), np.real(S_to), np.imag(S_to)))
+    branch_data = np.vstack((branch_no.astype(str), br_from, br_to, np.round(np.real(S_from),3), np.round(np.imag(S_from),3), np.round(np.real(S_to),3), np.round(np.imag(S_to),3)))
     branch_data = branch_data.transpose()
 
 
     # Display Bus results
-    print("=======================================================================")
+    print("================================================================================")
     print("                           | Bus results |                             ")
-    print("=======================================================================")
+    print("================================================================================")
     print("Bus    Bus            Voltage          Power     Generation          Load   ")
 
     print(tabulate(bus_data, headers=["#", "Label", "Mag(pu)", "Ang(deg)", "S(pu)","P(pu)","Q(pu)","P(pu)","Q(pu)"],stralign="center"))
@@ -192,7 +191,7 @@ def DisplayResults(V,lnd):
     print("=======================================================")
     print("                   | Branch flow |                     ")
     print("=======================================================")
-    print("Branch  From    To      From Bus Inject.       To Bus Inject.  ")
+    print("Branch  From    To    From Bus Inject.   To Bus Inject.  ")
     print(tabulate(branch_data, headers=[" # ", "Bus", "Bus", "P(pu)", "Q(pu)", "P(pu)", "Q(pu)"],stralign="center"))
 
 
