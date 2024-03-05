@@ -33,12 +33,14 @@ def DisplayResults_and_loading(V,lnd):
     Q_inj_g = np.array([]) #Generation reactive Power
     Q_inj_l = np.array([]) #Load reactive Power
     loading_inj = np.array([]) #Loading of generator at bus
+    S_gen = S_inj-SLD
+    print(S_inj, S_gen, SLD)
 
-    for index,s in enumerate(S_inj):
-        if np.real(s)>=0: 
+    for index,s in enumerate(S_gen):
+        if np.real(s)>0: 
             P_inj_g = np.concatenate((P_inj_g, [str(np.round(np.real(s),3))]))
             Q_inj_g = np.concatenate((Q_inj_g, [str(np.round(np.imag(s),3))]))
-            loading_inj = np.concatenate((loading_inj,["{0}%".format(str(np.round(s*100/Gen_MVA[index],2)))]))
+            loading_inj = np.concatenate((loading_inj,["{0}%".format(str(np.round(Sm[index]*100/Gen_MVA[index],2)))]))
         else:
             P_inj_g = np.concatenate((P_inj_g, ["-"]))
             Q_inj_g = np.concatenate((Q_inj_g, ["-"]))
@@ -46,10 +48,10 @@ def DisplayResults_and_loading(V,lnd):
 
         if SLD[index] != 0:
             P_inj_l = np.concatenate((P_inj_l, [str(np.round(np.real(SLD[index]),3))]))
-            Q_inj_l = np.concatenate((Q_inj_l, [str(np.round(-np.imag(SLD[index]),3))]))
+            Q_inj_l = np.concatenate((Q_inj_l, [str(np.round(np.imag(SLD[index]),3))]))
         else:
-            P_inj_l = np.concatenate((P_inj_g, ["-"]))
-            Q_inj_l = np.concatenate((Q_inj_g, ["-"]))
+            P_inj_l = np.concatenate((P_inj_l, ["-"]))
+            Q_inj_l = np.concatenate((Q_inj_l, ["-"]))
         
 
     # Branches
@@ -66,7 +68,7 @@ def DisplayResults_and_loading(V,lnd):
     br_to = mapping_function(br_t)
 
 
-    bus_data = np.vstack((bus_no, bus_labels, Vm, Theta, Sm, P_inj_g, Q_inj_g, loading_inj, P_inj_l, Q_inj_l))
+    bus_data = np.vstack((bus_no, bus_labels, Vm, Theta, P_inj_g, Q_inj_g, loading_inj, P_inj_l, Q_inj_l))
     bus_data = bus_data.transpose()
 
 
@@ -78,9 +80,9 @@ def DisplayResults_and_loading(V,lnd):
     print("================================================================================")
     print("                           | Bus results |                             ")
     print("================================================================================")
-    print("Bus    Bus            Voltage          Power     Generation          Load   ")
+    print("Bus    Bus            Voltage                Generation                Load   ")
 
-    print(tabulate(bus_data, headers=["#", "Label", "Mag(pu)", "Ang(deg)", "S(pu)","P(pu)","Q(pu)","loading","P(pu)","Q(pu)"],stralign="center"))
+    print(tabulate(bus_data, headers=["#", "Label", "Mag(pu)", "Ang(deg)","P(pu)","Q(pu)","loading","P(pu)","Q(pu)"],stralign="center"))
     print("\n")
     # Display Branch flow
     print("=============================================================")
