@@ -9,7 +9,7 @@ import numpy as np
 import PowerFlow_46705 as pf # import PowerFlow functions
 import LoadNetworkData as lnd # load the network data to global variables
 max_iter = 30 # Iteration settings
-err_tol = 1e−4
+err_tol = 0.0001
 
 # Load the Network data...
 filename = {'Test' : 'TestSystem4SA.txt', 'Nordic' : 'Nordic32_SA.txt'}
@@ -23,7 +23,7 @@ lnd.LoadNetworkData(filename['Test']) # makes Ybus available as lnd.Ybus etc.
 V,success,n = pf.PowerFlowNewton(lnd.Ybus,lnd.Sbus,lnd.V0,lnd.pv_index,lnd.pq_index,max_iter,err_tol)
 
 if success: # Display results if the power flow analysis converged
-pf.DisplayResults_and_loading(V,lnd)
+    pf.DisplayResults_and_loading(V,lnd)
 
 #%%
 ######################################################################
@@ -68,7 +68,7 @@ for i in range(len(lnd.br_f)): # sweep over branches
                     print(str_)
                     
         else: # no convergence...
-            str_ = '--> No load-flow convergence when branch {:} (bus {:} - bus {:}) is tripped'.
+            str_ = '--> No load-flow convergence when branch {:} (bus {:} - bus {:}) is tripped'
             str_ = str_.format(i+1, lnd.ind_to_bus[fr_ind], lnd.ind_to_bus[to_ind])
             print(str_status + ' [CONVERGENCE ISSUES!]')
             print(str_)
