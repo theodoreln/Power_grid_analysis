@@ -39,7 +39,7 @@ for i in range(len(lnd.br_f)): # sweep over branches
     to_ind = lnd.br_t[i]
     br_ind = i
     Ybr_mat = lnd.br_Ymat[i]
-    Ybus_mod, Yfr_mod, Yto_mod = apply_contingency_to_Y_matrices(lnd.Ybus,lnd.Y_fr,lnd.Y_to,\
+    Ybus_mod, Yfr_mod, Yto_mod = pf.apply_contingency_to_Y_matrices(lnd.Ybus,lnd.Y_fr,lnd.Y_to,\
                                                                  fr_ind,to_ind,br_ind,Ybr_mat)
     
     str_status = '-'*63 + '\nTripping of branch {:} (bus {:} - bus {:})'.format(i+1, lnd.ind_to_bus[fr_ind],\
@@ -57,7 +57,7 @@ for i in range(len(lnd.br_f)): # sweep over branches
     
     else:
         if success: # Display results if the power flow analysis converged
-            violations = System_violations(V,Ybus_mod,Yfr_mod,Yto_mod,lnd)
+            violations = pf.System_violations(V,Ybus_mod,Yfr_mod,Yto_mod,lnd)
         
             if not violations: # no violations, printstatusandmoveon
                 print(str_status + '[OK!]')
