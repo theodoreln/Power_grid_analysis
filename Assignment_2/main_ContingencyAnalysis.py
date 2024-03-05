@@ -12,8 +12,8 @@ max_iter = 30 # Iteration settings
 err_tol = 1e−4
 
 # Load the Network data...
-filename = "./TestSystem4SA.txt"
-lnd.LoadNetworkData(filename) # makes Ybus available as lnd.Ybus etc.
+filename = {'Test' : 'TestSystem4SA.txt', 'Nordic' : 'Nordic32_SA.txt'}
+lnd.LoadNetworkData(filename['Test']) # makes Ybus available as lnd.Ybus etc.
 
 #%%
 ###################################################################
