@@ -7,7 +7,7 @@ Created on Tue Mar  5 10:05:37 2024
 
 import numpy as np
 import PowerFlow_46705 as pf # import PowerFlow functions
-import LoadNetworkData_V2023 as lnd # load the network data to global variables
+import LoadNetworkData as lnd # load the network data to global variables
 max_iter = 30 # Iteration settings
 err_tol = 1e−4
 
