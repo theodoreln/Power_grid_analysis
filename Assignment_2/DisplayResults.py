@@ -2,7 +2,7 @@ import numpy as np
 from tabulate import tabulate
 
 # Function that displays the results of the Power Flow, 
-def DisplayResults(V,lnd):
+def DisplayResults_and_loading(V,lnd):
     
     Ybus=lnd.Ybus ; Y_from=lnd.Y_fr ; Y_to=lnd.Y_to ; br_f=lnd.br_f ; br_t=lnd.br_t ;
     buscode=lnd.buscode; SLD=lnd.S_LD ; ind_to_bus=lnd.ind_to_bus;
