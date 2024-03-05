@@ -68,7 +68,7 @@ def LoadNetworkData(filename):
         br_f[i] = id_from
         br_t[i] = id_to
         # Save MVA rating
-        br_MVA[i] = MVA_rate
+        br_MVA[i] = MVA_rate/MVA_base
         # Branch id ?
         br_id[i] = id_
         # Iterate 
@@ -100,7 +100,7 @@ def LoadNetworkData(filename):
         br_f[M_lines+i] = id_from
         br_t[M_lines+i] = id_to
         # Save MVA rating
-        br_MVA[M_lines+i] = MVA_rate
+        br_MVA[M_lines+i] = MVA_rate/MVA_base
         # Branch id ?
         br_id[M_lines+i] = id_
         # Iterate 
@@ -112,7 +112,7 @@ def LoadNetworkData(filename):
     Sbus = np.array([0]*N, dtype=complex)
     for i in range(len(gen_data)):
         id_bus, mva_size, p_gen = bus_to_ind[gen_data[i][0]], gen_data[i][1], gen_data[i][2]
-        Gen_MVA[id_bus] = mva_size
+        Gen_MVA[id_bus] = mva_size/MVA_base
         if id_bus not in ref :
             Sbus[id_bus] = p_gen/MVA_base
     for i in range(len(load_data)):
