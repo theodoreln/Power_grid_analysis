@@ -3,8 +3,8 @@ import cmath
 import math
 import ReadNetworkData as rd
 
-filename = {'Test' : 'TestSystem4SA.txt', 'Nordic' : 'Nordic32_SA.txt'}
-bus_data, load_data, gen_data, line_data, tran_data, mva_base, bus_to_ind, ind_to_bus = rd.read_network_data_from_file(filename["Test"])
+# filename = {'Test' : 'TestSystem4SA.txt', 'Nordic' : 'Nordic32_SA.txt'}
+# bus_data, load_data, gen_data, line_data, tran_data, mva_base, bus_to_ind, ind_to_bus = rd.read_network_data_from_file(filename["Test"])
 
 
 def LoadNetworkData(filename):
