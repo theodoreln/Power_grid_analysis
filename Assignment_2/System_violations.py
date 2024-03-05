@@ -38,14 +38,11 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
        
     # 1. Check flow in all branches (both ends) and report if limits are violated
     for i in range(len(br_f)):
-        I_from = (S_from[br_f[i]] / V[br_f[i]]).conj()  # the flow at bus from, indexed br_f[i]
-        I_to = (S_to[br_t[i]] / V[br_t[i]]).conj()      # the flow at bus to, indexed br_t[i]
-        
-        if I_from > br_MVA[i]:
+        if S_from > br_MVA[i]:
             str_ = 'branch flow limit (from) violated: FROM bus {0} to bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
             violations += str_
             
-        if I_to > br_MVA[i]:
+        if S_to > br_MVA[i]:
             str_ = 'branch flow limit (to) violated: from bus {0} TO bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
             violations += str_
     
