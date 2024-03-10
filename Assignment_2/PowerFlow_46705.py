@@ -86,7 +86,7 @@ def DisplayResults_and_loading(V,lnd):
     print("================================================================================")
     print("                           | Bus results |                             ")
     print("================================================================================")
-    print("Bus    Bus            Voltage                Generation                Load   ")
+    print(" Bus      Bus           Voltage                 Generation                 Load   ")
 
     print(tabulate(bus_data, headers=["#", "Label", "Mag(pu)", "Ang(deg)","P(pu)","Q(pu)","loading","P(pu)","Q(pu)"],stralign="center"))
     print("\n")
@@ -94,7 +94,7 @@ def DisplayResults_and_loading(V,lnd):
     print("=============================================================")
     print("                      | Branch flow |                        ")
     print("=============================================================")
-    print("Branch  From    To         From Bus Inject.         To Bus Inject.  ")
+    print("Branch  From    To         From Bus Inject.            To Bus Inject.  ")
     print(tabulate(branch_data, headers=[" # ", "Bus", "Bus", "P(pu)", "Q(pu)", "loading", "P(pu)", "Q(pu)", "loading"],stralign="center"))
 
 
@@ -132,12 +132,8 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
        
     # 1. Check flow in all branches (both ends) and report if limits are violated
     for i in range(len(br_f)):
-        if S_from[i] > br_MVA[i]:
-            str_ = 'Branch flow limit (from) violated: FROM bus {0} to bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
-            violations.append(str_)
-            
-        if S_to[i] > br_MVA[i]:
-            str_ = 'Branch flow limit (to) violated: from bus {0} to bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
+        if S_from[i] > br_MVA[i] or S_to[i] > br_MVA[i] :
+            str_ = 'Branch #{0} - from bus {1} to bus {2} (ID:{3}) overloaded (fr:{4}%, to:{5}%)'.format(i+1, ind_to_bus[br_f[i]], ind_to_bus[br_t[i]], br_id[i], round(S_from[i]*100/br_MVA[i],2), round(S_to[i]*100/br_MVA[i],2)) 
             violations.append(str_)
     
     
@@ -145,7 +141,7 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
     for i in range(len(gen_MVA)):
         
         if S_gen[i] > gen_MVA[i] and gen_MVA[i] != 0 :
-            str_ = 'Generation limit violated: generator at bus {}'.format(ind_to_bus[i])
+            str_ = 'Generator at bus #{0} - power limit violated ({1}%)'.format(ind_to_bus[i], round(S_gen[i]*100/gen_MVA[i],2))
             violations.append(str_)
         
         
@@ -154,11 +150,11 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
         Vm = abs(V[i])     # voltage magnitude at the bus indexed i
         
         if Vm < 0.9:
-            str_ = 'Bus voltage limit violated: voltage too low at bus {}'.format(ind_to_bus[i])
+            str_ = 'Bus #{0} - voltage limit violated ({1} p.u.)'.format(ind_to_bus[i], round(Vm,2))
             violations.append(str_)
         
         if Vm > 1.1:
-            str_ = 'Bus voltage limit violated: voltage too high at bus {}'.format(ind_to_bus[i])
+            str_ = 'Bus #{0} - voltage limit violated ({1} p.u.)'.format(ind_to_bus[i], round(Vm,2))
             violations.append(str_)  
     
     
