@@ -26,11 +26,11 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
     # Line flows and generators injection....
     ## S_k = V_k . (I_k)* apparent power
     ## SLD = (P + jQ)/mva_base with P, Q load powers in MW
-    S_to = V[br_t]*(Y_to.dot(V)).conj()         # the flow in the to end.. >modified
-    S_from = V[br_f]*(Y_from.dot(V)).conj()     # the flow in the from end >modified
+    S_to = np.round(np.absolute(V[br_t]*(Y_to.dot(V)).conj()),3)        # the flow in the to end.. >modified
+    S_from = np.round(np.absolute(V[br_f]*(Y_from.dot(V)).conj()),3)     # the flow in the from end >modified
     S_inj = V*(Ybus.dot(V)).conj()              # the injected power in the nodes >modified
     SLD=lnd.S_LD                                # the defined loads on the PQ busses (apparent power of loads [pu])
-    S_gen = S_inj + SLD                         # the generator arrays = injection (modified) + loads (unchanged) >updated
+    S_gen = np.round(np.absolute(S_inj + SLD),3)                        # the generator arrays = injection (modified) + loads (unchanged) >updated
     
     
     violations = []     # empty list that will store strings describing each violation
@@ -38,27 +38,21 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
        
     # 1. Check flow in all branches (both ends) and report if limits are violated
     for i in range(len(br_f)):
-        if S_from > br_MVA[i]:
-            str_ = 'branch flow limit (from) violated: FROM bus {0} to bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
-            violations += str_
+        if S_from[i] > br_MVA[i]:
+            str_ = 'Branch flow limit (from) violated: FROM bus {0} to bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
+            violations.append(str_)
             
-        if S_to > br_MVA[i]:
-            str_ = 'branch flow limit (to) violated: from bus {0} TO bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
-            violations += str_
+        if S_to[i] > br_MVA[i]:
+            str_ = 'Branch flow limit (to) violated: from bus {0} to bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
+            violations.append(str_)
     
     
     # 2. Check output of all generators and see if limits are exceeded
     for i in range(len(gen_MVA)):
-        P = S_gen.real[i]   # active power of the generator at bus indexed i
-        Q = S_gen.imag[i]   # reactive power of the generator at bus indexed i
         
-        if P > gen_MVA[i]:
-            str_ = 'generation limit violated: active power at bus {}'.format(ind_to_bus[i])
-            violations += str_
-        
-        if Q > gen_MVA[i]:
-            str_ = 'generation limit violated: reactive power at bus {}'.format(ind_to_bus[i])  
-            violations += str_
+        if S_gen[i] > gen_MVA[i] and gen_MVA[i] != 0 :
+            str_ = 'Generation limit violated: generator at bus {}'.format(ind_to_bus[i])
+            violations.append(str_)
         
         
     # 3. Check voltages on all busses and see if it remains between 0.9 and 1.1 pu
@@ -66,12 +60,13 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
         Vm = abs(V[i])     # voltage magnitude at the bus indexed i
         
         if Vm < 0.9:
-            str_ = 'bus voltage limit violated: voltage too low at bus {}'.format(ind_to_bus[i])
-            violations += str_
+            str_ = 'Bus voltage limit violated: voltage too low at bus {}'.format(ind_to_bus[i])
+            violations.append(str_)
         
         if Vm > 1.1:
-            str_ = 'bus voltage limit violated: voltage too high at bus {}'.format(ind_to_bus[i])
-            violations += str_    
+            str_ = 'Bus voltage limit violated: voltage too high at bus {}'.format(ind_to_bus[i])
+            violations.append(str_)  
     
     
     return violations   # return the list with description of all of the violations
+
