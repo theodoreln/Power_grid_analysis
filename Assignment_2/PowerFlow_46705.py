@@ -25,22 +25,22 @@ def DisplayResults_and_loading(V,lnd):
     Vm = np.round(np.absolute(V),3) # Voltage magnitude
     Theta = np.round(np.angle(V)*180/np.pi,2) #Voltage angle
 
-    S_inj = V*(Ybus.dot(V)).conj() # Generation and load power
-    Sm = np.round(np.absolute(S_inj),2)
+    S_inj = np.round(V*(Ybus.dot(V)).conj(),3) # Generation and load power
+    # Sm = np.round(np.absolute(S_inj),2)
 
     P_inj_g = np.array([]) #Generation active Power
     P_inj_l = np.array([]) #Load active Power
     Q_inj_g = np.array([]) #Generation reactive Power
     Q_inj_l = np.array([]) #Load reactive Power
     loading_inj = np.array([]) #Loading of generator at bus
-    S_gen = S_inj-SLD
-    print(S_inj, S_gen, SLD)
+    S_gen = S_inj+SLD
+    S_gen_m = np.round(np.absolute(S_gen),2)
 
     for index,s in enumerate(S_gen):
         if np.real(s)>0: 
             P_inj_g = np.concatenate((P_inj_g, [str(np.round(np.real(s),3))]))
             Q_inj_g = np.concatenate((Q_inj_g, [str(np.round(np.imag(s),3))]))
-            loading_inj = np.concatenate((loading_inj,["{0}%".format(str(np.round(Sm[index]*100/Gen_MVA[index],2)))]))
+            loading_inj = np.concatenate((loading_inj,["{0}%".format(str(np.round(S_gen_m[index]*100/Gen_MVA[index],2)))]))
         else:
             P_inj_g = np.concatenate((P_inj_g, ["-"]))
             Q_inj_g = np.concatenate((Q_inj_g, ["-"]))
@@ -58,10 +58,16 @@ def DisplayResults_and_loading(V,lnd):
     n_br = len(br_f) # Number of Branches
     branch_no = np.arange(1,(n_br+1)) # Branch numbers
 
+    loading_from = np.array([])
+    loading_to = np.array([])
     S_to = V[br_t]*Y_to.dot(V).conj() # Apparent Power flowing into the receiving end busses
-    loading_to= np.round(S_to*100/br_MVA,3) # Loading of line at to branch
+    S_to_m = np.absolute(S_to)
+    for index,s in enumerate(S_to) :
+        loading_to = np.concatenate((loading_to,["{0}%".format(str(np.round(S_to_m[index]*100/br_MVA[index],2)))])) # Loading of line at to branch
     S_from = V[br_f]*Y_from.dot(V).conj() # Apparent Power flowing from the receiving end busses
-    loading_from= np.round(S_to*100/br_MVA,3) # Loading of line at from branch
+    S_from_m = np.absolute(S_from)
+    for index,s in enumerate(S_from) :
+        loading_from = np.concatenate((loading_from,["{0}%".format(str(np.round(S_from_m[index]*100/br_MVA[index],2)))])) # Loading of line at from branch
     # Having number of branches and not there index
     mapping_function = np.vectorize(lambda x: ind_to_bus[x])
     br_from = mapping_function(br_f)
@@ -88,7 +94,7 @@ def DisplayResults_and_loading(V,lnd):
     print("=============================================================")
     print("                      | Branch flow |                        ")
     print("=============================================================")
-    print("Branch  From    To       From Bus Inject.      To Bus Inject.  ")
+    print("Branch  From    To         From Bus Inject.         To Bus Inject.  ")
     print(tabulate(branch_data, headers=[" # ", "Bus", "Bus", "P(pu)", "Q(pu)", "loading", "P(pu)", "Q(pu)", "loading"],stralign="center"))
 
 
@@ -114,11 +120,11 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
     # Line flows and generators injection....
     ## S_k = V_k . (I_k)* apparent power
     ## SLD = (P + jQ)/mva_base with P, Q load powers in MW
-    S_to = V[br_t]*(Y_to.dot(V)).conj()         # the flow in the to end.. >modified
-    S_from = V[br_f]*(Y_from.dot(V)).conj()     # the flow in the from end >modified
+    S_to = np.round(np.absolute(V[br_t]*(Y_to.dot(V)).conj()),3)        # the flow in the to end.. >modified
+    S_from = np.round(np.absolute(V[br_f]*(Y_from.dot(V)).conj()),3)     # the flow in the from end >modified
     S_inj = V*(Ybus.dot(V)).conj()              # the injected power in the nodes >modified
     SLD=lnd.S_LD                                # the defined loads on the PQ busses (apparent power of loads [pu])
-    S_gen = S_inj + SLD                         # the generator arrays = injection (modified) + loads (unchanged) >updated
+    S_gen = np.round(np.absolute(S_inj + SLD),3)                        # the generator arrays = injection (modified) + loads (unchanged) >updated
     
     
     violations = []     # empty list that will store strings describing each violation
@@ -126,27 +132,21 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
        
     # 1. Check flow in all branches (both ends) and report if limits are violated
     for i in range(len(br_f)):
-        if S_from > br_MVA[i]:
-            str_ = 'branch flow limit (from) violated: FROM bus {0} to bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
-            violations += str_
+        if S_from[i] > br_MVA[i]:
+            str_ = 'Branch flow limit (from) violated: FROM bus {0} to bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
+            violations.append(str_)
             
-        if S_to > br_MVA[i]:
-            str_ = 'branch flow limit (to) violated: from bus {0} TO bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
-            violations += str_
+        if S_to[i] > br_MVA[i]:
+            str_ = 'Branch flow limit (to) violated: from bus {0} to bus {1}'.format(ind_to_bus[br_f[i]], ind_to_bus[br_t[i]]) 
+            violations.append(str_)
     
     
     # 2. Check output of all generators and see if limits are exceeded
     for i in range(len(gen_MVA)):
-        P = S_gen.real[i]   # active power of the generator at bus indexed i
-        Q = S_gen.imag[i]   # reactive power of the generator at bus indexed i
         
-        if P > gen_MVA[i]:
-            str_ = 'generation limit violated: active power at bus {}'.format(ind_to_bus[i])
-            violations += str_
-        
-        if Q > gen_MVA[i]:
-            str_ = 'generation limit violated: reactive power at bus {}'.format(ind_to_bus[i])  
-            violations += str_
+        if S_gen[i] > gen_MVA[i] and gen_MVA[i] != 0 :
+            str_ = 'Generation limit violated: generator at bus {}'.format(ind_to_bus[i])
+            violations.append(str_)
         
         
     # 3. Check voltages on all busses and see if it remains between 0.9 and 1.1 pu
@@ -154,12 +154,12 @@ def System_violations(V,Ybus,Y_from,Y_to,lnd):
         Vm = abs(V[i])     # voltage magnitude at the bus indexed i
         
         if Vm < 0.9:
-            str_ = 'bus voltage limit violated: voltage too low at bus {}'.format(ind_to_bus[i])
-            violations += str_
+            str_ = 'Bus voltage limit violated: voltage too low at bus {}'.format(ind_to_bus[i])
+            violations.append(str_)
         
         if Vm > 1.1:
-            str_ = 'bus voltage limit violated: voltage too high at bus {}'.format(ind_to_bus[i])
-            violations += str_    
+            str_ = 'Bus voltage limit violated: voltage too high at bus {}'.format(ind_to_bus[i])
+            violations.append(str_)  
     
     
     return violations   # return the list with description of all of the violations
@@ -201,12 +201,12 @@ needed to carry out Power Flow calculations in python.
 """
 
 # 1. the PowerFlowNewton() function
-def PowerFlowNewton(Ybus,Sbus,V0,pv_index,pq_index,max_iter,err_tol):
+def PowerFlowNewton(Ybus,Sbus,V0,pv_index,pq_index,max_iter,err_tol,conv):
     success = 0 #Initialization of status flag and iteration counter
     n = 0
     V = V0
-    print(' iteration maximum P & Q mismatch (pu)')
-    print(' --------- ---------------------------')
+    # print(' iteration maximum P & Q mismatch (pu)')
+    # print(' --------- ---------------------------')
     
     # Determine mismatch between initial guess and and specified value for P and Q
     F = calculate_F(Ybus, Sbus, V, pv_index, pq_index)
@@ -230,9 +230,9 @@ def PowerFlowNewton(Ybus,Sbus,V0,pv_index,pq_index,max_iter,err_tol):
         F = calculate_F( Ybus , Sbus , V , pv_index , pq_index)
         success = CheckTolerance( F , n , err_tol)
     
-    if success : #print out message concerning wether the power flow converged or not
+    if success and conv == 1 : #print out message concerning wether the power flow converged or not
         print('The Newton Rapson Power Flow Converged in %d iterations!' % (n , ) )
-    else :
+    elif not success and conv == 1 :
         print('No Convergence !!!\n Stopped after %d iterations without solution...' % (n , ) )
 
     return V,success,n
