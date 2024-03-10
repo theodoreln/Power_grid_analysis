@@ -39,7 +39,7 @@ def LoadNetworkData(filename):
     Y_to = np.zeros((M_branches,N), dtype=complex)
     br_f = np.zeros(M_branches, dtype=int)
     br_t = np.zeros(M_branches, dtype=int)
-    br_MVA = np.zeros(M_branches, dtype=int)
+    br_MVA = np.zeros(M_branches, dtype=float)
     br_id = np.zeros(M_branches, dtype=int)
     br_Ymat = []
     i = 0
@@ -113,16 +113,15 @@ def LoadNetworkData(filename):
     for i in range(len(gen_data)):
         id_bus, mva_size, p_gen = bus_to_ind[gen_data[i][0]], gen_data[i][1], gen_data[i][2]
         Gen_MVA[id_bus] = mva_size/MVA_base
-        if id_bus not in ref :
-            Sbus[id_bus] = p_gen/MVA_base
+        Sbus[id_bus] = p_gen/MVA_base
     for i in range(len(load_data)):
         id_bus, p, q = bus_to_ind[load_data[i][0]], load_data[i][1], load_data[i][2]
         S_LD[id_bus] = (p+1j*q)/MVA_base
-        Sbus[id_bus] = -(p+1j*q)/MVA_base
+        Sbus[id_bus] += -(p+1j*q)/MVA_base
     
     # Initial guess for V vector
     V0 = np.ones(N, dtype=complex)
 
     return
 
-# LoadNetworkData(filename['Nordic'])
+# LoadNetworkData(filename['Test'])
