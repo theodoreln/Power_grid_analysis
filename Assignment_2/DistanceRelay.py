@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Wedge
 
 # Line Impedances
 Z_12 = 7 + 70j
@@ -54,6 +55,10 @@ plt.ylim(-20, 20)
 plt.xlabel('Re(Z)')
 plt.ylabel('Im(Z)')
 
+# Grey out area that#s behind the relay
+theta=-np.arccos(X3/Z3_abs)*180/np.pi
+grey_area = Wedge((0,0), Z3_abs, 180+theta, theta, fc='lightgrey', edgecolor='k')
+axes.add_artist(grey_area)
 # Plot vectors
 plt.quiver(0, 0, R3, X3, angles='xy', scale_units='xy', scale=1, color='b', label='Z_r3')
 plt.quiver(0, 0, R2, X2, angles='xy', scale_units='xy', scale=1, color='m', label='Z_r2')
@@ -67,12 +72,8 @@ axes.add_artist(circle2)
 circle3 = plt.Circle((0,0), Z3_abs, color ='b', fill = False)
 axes.add_artist(circle3)
 
-# plot orthogonals to add the directional restraint
-plt.plot([0, -X3], [0,R3], 'b-', linewidth=3)
-plt.plot([0, X3], [0,-R3], 'b-', linewidth=3)
-#plt.quiver(0, 0, -X3, R3, angles='xy', scale_units='xy', scale=1, color='b', label='Z_r3')
-#plt.quiver(0, 0, X3, -R3, angles='xy', scale_units='xy', scale=1, color='b', label='Z_r3')
-
+# Plot orthogonals to add the directional restraint
+plt.plot([-X3, X3], [R3,-R3], 'k--', linewidth=3)
 
 # Set plot title
 plt.title('Relay characteristics')
@@ -130,7 +131,7 @@ Z_emergency_relay = CTR/VTR* Z_emergency
 R4 = np.real(Z_emergency_relay)
 X4 = np.imag(Z_emergency_relay)
 
-plt.quiver(0,0, R4, X4, angles='xy', scale_units='xy', scale=1, color='g', label='Z_r4')
+plt.quiver(0,0, R4, X4, angles='xy', scale_units='xy', scale=1, color='g', label='Emergency load')
+plt.legend()
 plt.show()
-
 
