@@ -33,74 +33,76 @@ X1 = np.imag(Z_r1)
 X2 = np.imag(Z_r2)
 X3 = np.imag(Z_r3)
 
-# Plot
-R_values = range(-20, 20)
-X_values = range(-20, 20)
+# # Plot
+# R_values = range(-20, 20)
+# X_values = range(-20, 20)
 
-# Create a new figure
-fig, axes = plt.subplots(dpi = 400)
+# # Create a new figure
+# #fig, axes = plt.subplots(dpi=400)
+# fig, axes = plt.subplots()
 
-# Plot the x-axis
-plt.plot([-20, 20], [0, 0], 'k-', linewidth=1)
+# # Plot the x-axis
+# plt.plot([-20, 20], [0, 0], 'k-', linewidth=1)
 
-# Plot the y-axis
-plt.plot([0, 0], [-20, 20], 'k-', linewidth=1)
+# # Plot the y-axis
+# plt.plot([0, 0], [-20, 20], 'k-', linewidth=1)
 
 
-# Set x and y limits
-plt.xlim(-20, 20)
-plt.ylim(-20, 20)
+# # Set x and y limits
+# plt.xlim(-20, 20)
+# plt.ylim(-20, 20)
 
-# Set x and y labels
-plt.xlabel('Re(Z)')
-plt.ylabel('Im(Z)')
+# # Set x and y labels
+# plt.xlabel('Re(Z)')
+# plt.ylabel('Im(Z)')
 
-# Grey out area that#s behind the relay
-alpha=-np.arccos(X3/Z3_abs)*180/np.pi
-grey_area = Wedge((0,0), Z3_abs, 180+alpha, alpha, fc='lightgrey', edgecolor='k')
-axes.add_artist(grey_area)
-# Plot vectors
-plt.quiver(0, 0, R3, X3, angles='xy', scale_units='xy', scale=1, color='b', label='Z_r3')
-plt.quiver(0, 0, R2, X2, angles='xy', scale_units='xy', scale=1, color='m', label='Z_r2')
-plt.quiver(0, 0, R1, X1, angles='xy', scale_units='xy', scale=1, color='r', label='Z_r1')
+# # Grey out area that#s behind the relay
+# alpha=-np.arccos(X3/Z3_abs)*180/np.pi
+# grey_area = Wedge((0,0), Z3_abs, 180+alpha, alpha, fc='lightgrey', edgecolor='k')
+# axes.add_artist(grey_area)
+# # Plot vectors
+# plt.quiver(0, 0, R3, X3, angles='xy', scale_units='xy', scale=1, color='b', label='Z_r3')
+# plt.quiver(0, 0, R2, X2, angles='xy', scale_units='xy', scale=1, color='m', label='Z_r2')
+# plt.quiver(0, 0, R1, X1, angles='xy', scale_units='xy', scale=1, color='r', label='Z_r1')
 
-# Plot circles
-circle1 = plt.Circle((0,0), Z1_abs, color ='r', fill = False)
-axes.add_artist(circle1)
-circle2 = plt.Circle((0,0), Z2_abs, color ='m', fill = False)
-axes.add_artist(circle2)
-circle3 = plt.Circle((0,0), Z3_abs, color ='b', fill = False)
-axes.add_artist(circle3)
+# # Plot circles
+# circle1 = plt.Circle((0,0), Z1_abs, color ='r', fill = False)
+# axes.add_artist(circle1)
+# circle2 = plt.Circle((0,0), Z2_abs, color ='m', fill = False)
+# axes.add_artist(circle2)
+# circle3 = plt.Circle((0,0), Z3_abs, color ='b', fill = False)
+# axes.add_artist(circle3)
 
-# Plot orthogonals to add the directional restraint
-plt.plot([-X3, X3], [R3,-R3], 'k--', linewidth=3)
+# # Plot orthogonals to add the directional restraint
+# plt.plot([-X3, X3], [R3,-R3], 'k--', linewidth=3)
 
-# Set plot title
-plt.title('Relay characteristics')
-plt.legend()
+# # Set plot title
+# plt.title('Impedance relay')
+# plt.legend()
 
-# Set aspect ratio to be equal
-plt.gca().set_aspect('equal', adjustable='box')
+# # Set aspect ratio to be equal
+# plt.gca().set_aspect('equal', adjustable='box')
 
-# Show plot
-plt.show()
+# # Show plot
+# plt.show()
 
 #%%
 # mho Relay
 # new center
 # Create a new figure
-fig2, axes2 = plt.subplots(dpi = 400)
+#fig2, axes2 = plt.subplots(dpi=400)
+fig2, axes2 = plt.subplots()
 
 # Plot the x-axis
-plt.plot([-10, 30], [0, 0], 'k-', linewidth=1)
+plt.plot([-10, 20], [0, 0], 'k-', linewidth=1)
 
 # Plot the y-axis
-plt.plot([0, 0], [-10, 30], 'k-', linewidth=1)
+plt.plot([0, 0], [-10, 20], 'k-', linewidth=1)
 
 
 # Set x and y limits
-plt.xlim(-10, 30)
-plt.ylim(-10, 30)
+plt.xlim(-10, 20)
+plt.ylim(-10, 20)
 
 # Set x and y labels
 plt.xlabel('Re(Z)')
@@ -123,36 +125,26 @@ plt.gca().set_aspect('equal', adjustable='box')
 
 # Calculate the impedance vector for the relay with 1800 A emergency loading
 pf =0.95
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
 Im = 1800
 Theta = -np.arccos(pf)
-=======
->>>>>>> Stashed changes
-Im = 1800 * np.sqrt(3)
-Theta = np.arccos(pf)
->>>>>>> d66caf4eca926557a2598ddb33056fdc876cf341
 Voltage = 500000
-I = Im * np.exp(1j*Theta) 
-print(I)
+I =np.sqrt(3) * Im * np.exp(1j*Theta) 
 Z_emergency = 500000/I
-print(Z_emergency)
 Z_emergency_relay = CTR/VTR* Z_emergency
-print(Z_emergency_relay)
 R4 = np.real(Z_emergency_relay)
 X4 = np.imag(Z_emergency_relay)
-plt.quiver(0,0, R4, X4, angles='xy', scale_units='xy', scale=1, color='g', label='Emergency load')
+plt.quiver(0,0, R4, X4, angles='xy', scale_units='xy', scale=1, color='g', label='Emerg. load')
+plt.title('mho Relay')
 plt.legend()
-<<<<<<< HEAD
 plt.show()
-=======
-plt.show()
+
+
 
 #%%
-
+# Plot impedance relay with emergency load
 # Create a new figure
-fig, axes = plt.subplots(dpi = 400)
+#fig, axes = plt.subplots(dpi=400)
+fig, axes = plt.subplots()
 
 # Plot the x-axis
 plt.plot([-20, 20], [0, 0], 'k-', linewidth=1)
@@ -177,7 +169,7 @@ axes.add_artist(grey_area)
 plt.quiver(0, 0, R3, X3, angles='xy', scale_units='xy', scale=1, color='b', label='Z_r3')
 plt.quiver(0, 0, R2, X2, angles='xy', scale_units='xy', scale=1, color='m', label='Z_r2')
 plt.quiver(0, 0, R1, X1, angles='xy', scale_units='xy', scale=1, color='r', label='Z_r1')
-plt.quiver(0,0, R4, X4, angles='xy', scale_units='xy', scale=1, color='g', label='Emergency load')
+plt.quiver(0,0, R4, X4, angles='xy', scale_units='xy', scale=1, color='g', label='Emerg. load')
 
 # Plot circles
 circle1 = plt.Circle((0,0), Z1_abs, color ='r', fill = False)
@@ -191,7 +183,7 @@ axes.add_artist(circle3)
 plt.plot([-X3, X3], [R3,-R3], 'k--', linewidth=3)
 
 # Set plot title
-plt.title('Relay characteristics')
+plt.title('Impedance Relay')
 plt.legend()
 
 # Set aspect ratio to be equal
@@ -199,8 +191,3 @@ plt.gca().set_aspect('equal', adjustable='box')
 
 # Show plot
 plt.show()
-
-<<<<<<< Updated upstream
-=======
->>>>>>> d66caf4eca926557a2598ddb33056fdc876cf341
->>>>>>> Stashed changes
