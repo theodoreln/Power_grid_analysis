@@ -56,8 +56,8 @@ plt.xlabel('Re(Z)')
 plt.ylabel('Im(Z)')
 
 # Grey out area that#s behind the relay
-theta=-np.arccos(X3/Z3_abs)*180/np.pi
-grey_area = Wedge((0,0), Z3_abs, 180+theta, theta, fc='lightgrey', edgecolor='k')
+alpha=-np.arccos(X3/Z3_abs)*180/np.pi
+grey_area = Wedge((0,0), Z3_abs, 180+alpha, alpha, fc='lightgrey', edgecolor='k')
 axes.add_artist(grey_area)
 # Plot vectors
 plt.quiver(0, 0, R3, X3, angles='xy', scale_units='xy', scale=1, color='b', label='Z_r3')
@@ -121,19 +121,32 @@ axes2.add_artist(center)
 plt.gca().set_aspect('equal', adjustable='box')
 
 
-#calculate the impedance vector for the relay with 1800A emergency loading
+# Calculate the impedance vector for the relay with 1800 A emergency loading
 pf =0.95
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+Im = 1800
+Theta = -np.arccos(pf)
+=======
+>>>>>>> Stashed changes
 Im = 1800 * np.sqrt(3)
 Theta = np.arccos(pf)
+>>>>>>> d66caf4eca926557a2598ddb33056fdc876cf341
 Voltage = 500000
-I = Im * np.exp(-1j*Theta) 
+I = Im * np.exp(1j*Theta) 
+print(I)
 Z_emergency = 500000/I
+print(Z_emergency)
 Z_emergency_relay = CTR/VTR* Z_emergency
+print(Z_emergency_relay)
 R4 = np.real(Z_emergency_relay)
 X4 = np.imag(Z_emergency_relay)
-
 plt.quiver(0,0, R4, X4, angles='xy', scale_units='xy', scale=1, color='g', label='Emergency load')
 plt.legend()
+<<<<<<< HEAD
+plt.show()
+=======
 plt.show()
 
 #%%
@@ -187,3 +200,7 @@ plt.gca().set_aspect('equal', adjustable='box')
 # Show plot
 plt.show()
 
+<<<<<<< Updated upstream
+=======
+>>>>>>> d66caf4eca926557a2598ddb33056fdc876cf341
+>>>>>>> Stashed changes
