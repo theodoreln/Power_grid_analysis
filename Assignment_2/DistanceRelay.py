@@ -38,7 +38,7 @@ R_values = range(-20, 20)
 X_values = range(-20, 20)
 
 # Create a new figure
-fig, axes = plt.subplots()
+fig, axes = plt.subplots(dpi = 400)
 
 # Plot the x-axis
 plt.plot([-20, 20], [0, 0], 'k-', linewidth=1)
@@ -85,10 +85,11 @@ plt.gca().set_aspect('equal', adjustable='box')
 # Show plot
 plt.show()
 
+#%%
 # mho Relay
 # new center
 # Create a new figure
-fig2, axes2 = plt.subplots()
+fig2, axes2 = plt.subplots(dpi = 400)
 
 # Plot the x-axis
 plt.plot([-10, 30], [0, 0], 'k-', linewidth=1)
@@ -122,7 +123,7 @@ plt.gca().set_aspect('equal', adjustable='box')
 
 #calculate the impedance vector for the relay with 1800A emergency loading
 pf =0.95
-Im = 1800
+Im = 1800 * np.sqrt(3)
 Theta = np.arccos(pf)
 Voltage = 500000
 I = Im * np.exp(-1j*Theta) 
@@ -133,5 +134,56 @@ X4 = np.imag(Z_emergency_relay)
 
 plt.quiver(0,0, R4, X4, angles='xy', scale_units='xy', scale=1, color='g', label='Emergency load')
 plt.legend()
+plt.show()
+
+#%%
+
+# Create a new figure
+fig, axes = plt.subplots(dpi = 400)
+
+# Plot the x-axis
+plt.plot([-20, 20], [0, 0], 'k-', linewidth=1)
+
+# Plot the y-axis
+plt.plot([0, 0], [-20, 20], 'k-', linewidth=1)
+
+
+# Set x and y limits
+plt.xlim(-20, 20)
+plt.ylim(-20, 20)
+
+# Set x and y labels
+plt.xlabel('Re(Z)')
+plt.ylabel('Im(Z)')
+
+# Grey out area that#s behind the relay
+theta=-np.arccos(X3/Z3_abs)*180/np.pi
+grey_area = Wedge((0,0), Z3_abs, 180+theta, theta, fc='lightgrey', edgecolor='k')
+axes.add_artist(grey_area)
+# Plot vectors
+plt.quiver(0, 0, R3, X3, angles='xy', scale_units='xy', scale=1, color='b', label='Z_r3')
+plt.quiver(0, 0, R2, X2, angles='xy', scale_units='xy', scale=1, color='m', label='Z_r2')
+plt.quiver(0, 0, R1, X1, angles='xy', scale_units='xy', scale=1, color='r', label='Z_r1')
+plt.quiver(0,0, R4, X4, angles='xy', scale_units='xy', scale=1, color='g', label='Emergency load')
+
+# Plot circles
+circle1 = plt.Circle((0,0), Z1_abs, color ='r', fill = False)
+axes.add_artist(circle1)
+circle2 = plt.Circle((0,0), Z2_abs, color ='m', fill = False)
+axes.add_artist(circle2)
+circle3 = plt.Circle((0,0), Z3_abs, color ='b', fill = False)
+axes.add_artist(circle3)
+
+# Plot orthogonals to add the directional restraint
+plt.plot([-X3, X3], [R3,-R3], 'k--', linewidth=3)
+
+# Set plot title
+plt.title('Relay characteristics')
+plt.legend()
+
+# Set aspect ratio to be equal
+plt.gca().set_aspect('equal', adjustable='box')
+
+# Show plot
 plt.show()
 
