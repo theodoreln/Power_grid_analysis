@@ -55,7 +55,6 @@ def Calculate_Sequence_Fault_Currents(Zbus0,Zbus1,Zbus2,bus_to_ind,fault_bus,fau
 
 # 1.2 the Calculate_Sequence_Fault_Voltages() function
 def Calculate_Sequence_Fault_Voltages(Zbus0,Zbus1,Zbus2,bus_to_ind,fault_bus,Vf,Iseq):
-    # Define the fault voltages matrix
     N = len(bus_to_ind)
     fb = bus_to_ind[fault_bus]
     Vseq_mat = np.zeros((N,3),dtype=complex)
@@ -64,21 +63,26 @@ def Calculate_Sequence_Fault_Voltages(Zbus0,Zbus1,Zbus2,bus_to_ind,fault_bus,Vf,
         Vseq_mat[i,0] = - Zbus0[i,fb]*Iseq[0]
         Vseq_mat[i,1] = Vf - Zbus1[i,fb]*Iseq[1]
         Vseq_mat[i,2] = - Zbus2[i,fb]*Iseq[2]
-    
     return Vseq_mat
 
 # 1.3. the Convert_Sequence2Phase_Currents() function
 def Convert_Sequence2Phase_Currents(Iseq):
-    
-    
-    
+    a = np.exp(1j*120*(np.pi/180))
+    a_sq = np.exp(1j*240*(np.pi/180))
+    Iph = np.zeros(1,3)
+    a_matr = np.array([[1,1,1],[1, a_sq, a],[1,a,a_sq]])
+    Iph = np.dot(a_matr,Iseq)  
     return Iph
 
 # 1.4 the Convert_Sequence2Phase_Voltages() function
 def Convert_Sequence2Phase_Voltages(Vseq_mat):
-    
-    
-    
+    m = Vseq_mat.shape[0]
+    a = np.exp(1j*120*(np.pi/180))
+    a_sq = np.exp(1j*240*(np.pi/180))
+    Vph_mat = np.zeros(m,3)
+    a_matr = np.array([[1,1,1],[1, a_sq, a],[1,a,a_sq]])
+    for row in range(m):
+        Vph_mat[row,:] = np.dot(a_matr,Vseq_mat[row,:])  
     return Vph_mat
 
 # ####################################################
