@@ -16,7 +16,7 @@ FaultImpedance = 0 # (in pu)
 PrefaultVoltage = 1.000 # (in pu)
 # Iph: phase current array (0: phase a; 1: phase b; 2: phase c). 
 # Vph_mat: phase line-to-ground voltages (rows: busses; columns: phases a, b, c).
-Iph,Vph_mat = fa.FaultAnalysis(lnd4fa.Zbus0,lnd4fa.Zbus1,lnd4fa.Zbus2,lnd4fa.bus_to_ind, 
+Iph,Vph_mat,Iseq,Vseq_mat = fa.FaultAnalysis(lnd4fa.Zbus0,lnd4fa.Zbus1,lnd4fa.Zbus2,lnd4fa.bus_to_ind, 
                                 FaultBus,FaultType,FaultImpedance,PrefaultVoltage)
 # Display results
 fa.DisplayFaultAnalysisResults(Iph,Vph_mat,FaultBus,FaultType,FaultImpedance,PrefaultVoltage)

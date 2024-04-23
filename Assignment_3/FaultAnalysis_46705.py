@@ -17,7 +17,7 @@ def FaultAnalysis(Zbus0,Zbus1,Zbus2,bus_to_ind,fault_bus,fault_type,Zf,Vf):
     Iph = Convert_Sequence2Phase_Currents(Iseq)
     # convert sequence voltages to phase line-to-ground (fault) voltages
     Vph_mat = Convert_Sequence2Phase_Voltages(Vseq_mat)    
-    return Iph, Vph_mat
+    return Iph, Vph_mat, Iseq, Vseq_mat
 
 # 1.1. the Calculate_Sequence_Fault_Currents() function
 def Calculate_Sequence_Fault_Currents(Zbus0,Zbus1,Zbus2,bus_to_ind,fault_bus,fault_type,Zf,Vf):
@@ -69,7 +69,7 @@ def Calculate_Sequence_Fault_Voltages(Zbus0,Zbus1,Zbus2,bus_to_ind,fault_bus,Vf,
 def Convert_Sequence2Phase_Currents(Iseq):
     a = np.exp(1j*120*(np.pi/180))
     a_sq = np.exp(1j*240*(np.pi/180))
-    Iph = np.zeros(1,3)
+    Iph = np.zeros((1,3), dtype=complex)
     a_matr = np.array([[1,1,1],[1, a_sq, a],[1,a,a_sq]])
     Iph = np.dot(a_matr,Iseq)  
     return Iph
@@ -79,7 +79,7 @@ def Convert_Sequence2Phase_Voltages(Vseq_mat):
     m = Vseq_mat.shape[0]
     a = np.exp(1j*120*(np.pi/180))
     a_sq = np.exp(1j*240*(np.pi/180))
-    Vph_mat = np.zeros(m,3)
+    Vph_mat = np.zeros((m,3), dtype=complex)
     a_matr = np.array([[1,1,1],[1, a_sq, a],[1,a,a_sq]])
     for row in range(m):
         Vph_mat[row,:] = np.dot(a_matr,Vseq_mat[row,:])  
@@ -110,9 +110,10 @@ def DisplayFaultAnalysisResults(Iph,Vph_mat,fault_bus,fault_type,Zf,Vf):
 
     # Phase current
     mag_and_ang= []
+    Iph = np.round(Iph, 3)
     for i in Iph:
-        mag_and_ang +=np.round(np.absolute(i),3)
-        mag_and_ang +=np.round(np.angle(i)*180/np.pi,3)
+        mag_and_ang.append(np.round(np.absolute(i),3))
+        mag_and_ang.append(np.round(np.angle(i)*180/np.pi,3))
                     
 
     # Phase voltages
@@ -123,14 +124,14 @@ def DisplayFaultAnalysisResults(Iph,Vph_mat,fault_bus,fault_type,Zf,Vf):
     ang_b = []
     ang_c = []
 
-    for row in Vph_mat.shape[0]:
-        mag_a += np.round(np.absolute(Vph_mat[row,0]),3)
-        mag_b += np.round(np.absolute(Vph_mat[row,1]),3)                  
-        mag_c += np.round(np.absolute(Vph_mat[row,2]),3) 
-        ang_a += np.round(np.angle(Vph_mat[row,0])*180/np.pi,3)
-        ang_b += np.round(np.angle(Vph_mat[row,1])*180/np.pi,3)
-        ang_c += np.round(np.angle(Vph_mat[row,2])*180/np.pi,3)
-    voltage_data = np.vstack(range(Vph_mat.shape[0]),mag_a,ang_a,mag_b,ang_b,mag_c,ang_c)
+    for row in range(Vph_mat.shape[0]):
+        mag_a.append(np.round(np.absolute(Vph_mat[row,0]),3))
+        mag_b.append(np.round(np.absolute(Vph_mat[row,1]),3))                  
+        mag_c.append(np.round(np.absolute(Vph_mat[row,2]),3)) 
+        ang_a.append(np.round(np.angle(Vph_mat[row,0])*180/np.pi,3))
+        ang_b.append(np.round(np.angle(Vph_mat[row,1])*180/np.pi,3))
+        ang_c.append(np.round(np.angle(Vph_mat[row,2])*180/np.pi,3))
+    voltage_data = np.vstack((range(1,Vph_mat.shape[0]+1),mag_a,ang_a,mag_b,ang_b,mag_c,ang_c))
     voltage_data = voltage_data.transpose()
 
 
