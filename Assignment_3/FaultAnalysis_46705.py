@@ -55,17 +55,30 @@ def Calculate_Sequence_Fault_Currents(Zbus0,Zbus1,Zbus2,bus_to_ind,fault_bus,fau
 
 # 1.2 the Calculate_Sequence_Fault_Voltages() function
 def Calculate_Sequence_Fault_Voltages(Zbus0,Zbus1,Zbus2,bus_to_ind,fault_bus,Vf,Iseq):
-    # enter your code here
+    # Define the fault voltages matrix
+    N = len(bus_to_ind)
+    fb = bus_to_ind[fault_bus]
+    Vseq_mat = np.zeros((N,3),dtype=complex)
+    
+    for i in range(N) :
+        Vseq_mat[i,0] = - Zbus0[i,fb]*Iseq[0]
+        Vseq_mat[i,1] = Vf - Zbus1[i,fb]*Iseq[1]
+        Vseq_mat[i,2] = - Zbus2[i,fb]*Iseq[2]
+    
     return Vseq_mat
 
 # 1.3. the Convert_Sequence2Phase_Currents() function
 def Convert_Sequence2Phase_Currents(Iseq):
-    # enter your code here
+    
+    
+    
     return Iph
 
 # 1.4 the Convert_Sequence2Phase_Voltages() function
 def Convert_Sequence2Phase_Voltages(Vseq_mat):
-    # enter your code here
+    
+    
+    
     return Vph_mat
 
 # ####################################################
