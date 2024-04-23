@@ -89,10 +89,69 @@ def Convert_Sequence2Phase_Voltages(Vseq_mat):
 # #  Displaying the results in the terminal window   #
 # ####################################################
 # 2. the DisplayFaultAnalysisResults() function
+from tabulate import tabulate
 def DisplayFaultAnalysisResults(Iph,Vph_mat,fault_bus,fault_type,Zf,Vf):
+    # Fault type
+    if fault_type == 0:
+        type = "3-Phase Balanced fault"
+        phase = 'a,b and c'
+    elif fault_type == 1:
+        type = "Single Line-to-Ground fault"
+        phase = 'a'
+    elif fault_type == 2:
+        type = "Line-to-Line fault"
+        phase = 'b and c'
+    elif fault_type == 3:
+        type = "Double Line-to-Ground fault"
+        phase = 'b and c'
+    else:
+        print('Unknown Fault Type')
+
+
+    # Phase current
+    mag_and_ang= []
+    for i in Iph:
+        mag_and_ang +=np.round(np.absolute(i),3)
+        mag_and_ang +=np.round(np.angle(i)*180/np.pi,3)
+                    
+
+    # Phase voltages
+    mag_a = []  
+    mag_b = []
+    mag_c = []
+    ang_a = []
+    ang_b = []
+    ang_c = []
+
+    for row in Vph_mat.shape[0]:
+        mag_a += np.round(np.absolute(Vph_mat[row,0]),3)
+        mag_b += np.round(np.absolute(Vph_mat[row,1]),3)                  
+        mag_c += np.round(np.absolute(Vph_mat[row,2]),3) 
+        ang_a += np.round(np.angle(Vph_mat[row,0])*180/np.pi,3)
+        ang_b += np.round(np.angle(Vph_mat[row,1])*180/np.pi,3)
+        ang_c += np.round(np.angle(Vph_mat[row,2])*180/np.pi,3)
+    voltage_data = np.vstack(range(Vph_mat.shape[0]),mag_a,ang_a,mag_b,ang_b,mag_c,ang_c)
+    voltage_data = voltage_data.transpose()
+
+
     print('==============================================================')
     print('|                  Fault Analysis Results                    |')
     print('==============================================================')
-    # enter your code here
+    print('| ', type, ' at Bus ', fault_bus, 'phase ',phase, '.|' )
+    print('| Prefault Voltage: Vf = ',Vf, ' (pu)                    |' )
+    print('| Fault Impedance: Zf = ',Zf, '  (pu)                    |' )
+    print('==============================================================')
+    print('|                      Phase Currents                        |')
+    print('|                    ------------------                      |')
+    print('|------Phase a------|------Phase b------|------Phase c-------|')
+    print("|Mag(pu)", "Ang(deg)|", "Mag(pu)", "Ang(deg)|", "Mag(pu)", "Ang(deg)|")
+    print(mag_and_ang[0],"  ",mag_and_ang[1],"  ",mag_and_ang[2],"  ",mag_and_ang[3],"  ",mag_and_ang[4],"  ",mag_and_ang[5])
+    print("\n")
+    print('==============================================================')
+    print('|               Phase Line-to-Ground Voltages                 |')
+    print('|              ------------------------------                |')
+    print('|------Phase a------|------Phase b------|------Phase c-------|')
+    print(tabulate(voltage_data, headers=["|Bus|","|Mag(pu)", "Ang(deg)|", "|Mag(pu)", "Ang(deg)|", "|Mag(pu)", "Ang(deg)|"],stralign="center"))
+    print("\n")
     print('==============================================================')  
     return
