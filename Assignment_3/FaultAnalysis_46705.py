@@ -106,7 +106,21 @@ def DisplayFaultAnalysisResults(Iph,Vph_mat,fault_bus,fault_type,Zf,Vf):
         phase = 'b and c'
     else:
         print('Unknown Fault Type')
-
+        
+        
+    # Resolve python problem with the zero
+    for V in range(len(Vph_mat)) :
+        for v in range(3) :
+            if abs(Vph_mat[V,v].real) < 1e-10 :
+                Vph_mat[V,v] = complex(0, Vph_mat[V,v].imag)
+            if abs(Vph_mat[V,v].imag) < 1e-10 :
+                Vph_mat[V,v] = complex(Vph_mat[V,v].real, 0)
+    
+    for i in range(len(Iph)) :
+        if abs(Iph[i].real) < 1e-10 :
+            Iph[i] = complex(0, Iph[i].imag)
+        if abs(Iph[i].imag) < 1e-10 :
+            Iph[i] = complex(Iph[i].real, 0)
 
     # Phase current
     mag_and_ang= []
@@ -114,7 +128,8 @@ def DisplayFaultAnalysisResults(Iph,Vph_mat,fault_bus,fault_type,Zf,Vf):
     for i in Iph:
         mag_and_ang.append(np.round(np.absolute(i),3))
         mag_and_ang.append(np.round(np.angle(i)*180/np.pi,3))
-                    
+    current_data = np.vstack(mag_and_ang)
+    current_data = current_data.transpose()
 
     # Phase voltages
     mag_a = []  
@@ -141,17 +156,19 @@ def DisplayFaultAnalysisResults(Iph,Vph_mat,fault_bus,fault_type,Zf,Vf):
     print('| ', type, ' at Bus ', fault_bus, 'phase ',phase, '.|' )
     print('| Prefault Voltage: Vf = ',Vf, ' (pu)                    |' )
     print('| Fault Impedance: Zf = ',Zf, '  (pu)                    |' )
-    print('==============================================================')
-    print('|                      Phase Currents                        |')
-    print('|                    ------------------                      |')
-    print('|------Phase a------|------Phase b------|------Phase c-------|')
-    print("|Mag(pu)", "Ang(deg)|", "Mag(pu)", "Ang(deg)|", "Mag(pu)", "Ang(deg)|")
-    print(mag_and_ang[0],"  ",mag_and_ang[1],"  ",mag_and_ang[2],"  ",mag_and_ang[3],"  ",mag_and_ang[4],"  ",mag_and_ang[5])
+    print('\n')
+    print('=========================================================================')
+    print('|                            Phase Currents                             |')
+    print('|                          ------------------                           |')
+    print('|-------Phase a-------|--------Phase b---------|---------Phase c--------|')
+    print(tabulate(current_data, headers=["|Mag(pu)", "Ang(deg)|", "|Mag(pu)", "Ang(deg)|", "|Mag(pu)", "Ang(deg)|"],stralign="center"))
+    # print("| Mag(pu) ", " Ang(deg)|", "Mag(pu) ", " Ang(deg)|", "Mag(pu) ", " Ang(deg)|")
+    # print("   ", mag_and_ang[0],"     ",mag_and_ang[1],"   ",mag_and_ang[2],"   ",mag_and_ang[3],"  ",mag_and_ang[4],"  ",mag_and_ang[5])
     print("\n")
-    print('==============================================================')
-    print('|               Phase Line-to-Ground Voltages                 |')
-    print('|              ------------------------------                |')
-    print('|------Phase a------|------Phase b------|------Phase c-------|')
+    print('==================================================================================')
+    print('|                         Phase Line-to-Ground Voltages                          |')
+    print('|                         ------------------------------                         |')
+    print('|     |--------Phase a---------|--------Phase b---------|--------Phase c---------|')
     print(tabulate(voltage_data, headers=["|Bus|","|Mag(pu)", "Ang(deg)|", "|Mag(pu)", "Ang(deg)|", "|Mag(pu)", "Ang(deg)|"],stralign="center"))
     print("\n")
     print('==============================================================')  
